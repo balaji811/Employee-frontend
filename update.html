@@ -1,0 +1,321 @@
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Update Employee</title>
+
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+      }
+
+      body {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #f2f4f7;
+      }
+
+      .update-container {
+        width: 400px;
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      h1 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: #333;
+        font-size: 26px;
+      }
+
+      .form-group {
+        margin-bottom: 17px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: bold;
+        color: #444;
+      }
+
+      input {
+        width: 100%;
+        padding: 11px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 15px;
+      }
+
+      input:focus {
+        outline: none;
+        border-color: #007bff;
+      }
+
+      input[readonly] {
+        background: #e9ecef;
+        cursor: not-allowed;
+      }
+
+      button {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 6px;
+        background: #007bff;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: #0056b3;
+      }
+
+      button:disabled {
+        background: #999;
+        cursor: not-allowed;
+      }
+
+      .back-button {
+        display: block;
+        margin-top: 12px;
+        text-align: center;
+        padding: 11px;
+        border-radius: 6px;
+        background: #6c757d;
+        color: white;
+        text-decoration: none;
+      }
+
+      .back-button:hover {
+        background: #545b62;
+      }
+
+      #message {
+        margin-top: 15px;
+        text-align: center;
+        font-weight: bold;
+      }
+
+      .success {
+        color: green;
+      }
+
+      .error {
+        color: red;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="update-container">
+      <h1>Update Employee</h1>
+
+      <form id="updateForm">
+        <div class="form-group">
+          <label for="name">Name</label>
+
+          <input
+            type="text"
+            name="name"
+            id="name"
+            placeholder="Enter name"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+
+          <input type="email" name="email" id="email" readonly />
+        </div>
+
+        <div class="form-group">
+          <label for="dept">Department</label>
+
+          <input
+            type="text"
+            name="dept"
+            id="dept"
+            placeholder="Enter department"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="salary">Salary</label>
+
+          <input
+            type="number"
+            name="salary"
+            id="salary"
+            placeholder="Enter salary"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+
+          <input
+            type="password"
+            name="password"
+            id="password"
+            placeholder="Enter password"
+            required
+          />
+        </div>
+
+        <button type="submit" id="updateButton">Update Employee</button>
+
+        <div id="message"></div>
+      </form>
+
+      <a href="profile.html" class="back-button"> Back to Profile </a>
+    </div>
+
+    <script>
+      const email = localStorage.getItem("email");
+
+      console.log("Logged-in email:", email);
+
+      // Check whether user is logged in
+      if (!email) {
+        alert("Please login first");
+
+        window.location.href = "login.html";
+      } else {
+        // Get existing employee details
+        fetch(
+          "https://peoject-spring-1.onrender.com/update/" +
+            encodeURIComponent(email),
+        )
+          .then(function (response) {
+            console.log("GET status:", response.status);
+
+            if (!response.ok) {
+              throw new Error("Server returned " + response.status);
+            }
+
+            return response.json();
+          })
+
+          .then(function (employee) {
+            console.log("Employee:", employee);
+
+            // Fill existing employee details
+
+            document.getElementById("name").value = employee.name || "";
+
+            document.getElementById("email").value = employee.email || email;
+
+            document.getElementById("dept").value = employee.dept || "";
+
+            document.getElementById("salary").value = employee.salary || "";
+
+            document.getElementById("password").value = employee.password || "";
+          })
+
+          .catch(function (error) {
+            console.error("Error loading employee:", error);
+
+            document.getElementById("message").innerText =
+              "Unable to load employee details.";
+
+            document.getElementById("message").className = "error";
+          });
+      }
+
+      // Update employee
+      document
+        .getElementById("updateForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          const employee = {
+            name: document.getElementById("name").value,
+
+            email: document.getElementById("email").value,
+
+            dept: document.getElementById("dept").value,
+
+            salary: Number(document.getElementById("salary").value),
+
+            password: document.getElementById("password").value,
+          };
+
+          const updateButton = document.getElementById("updateButton");
+
+          const message = document.getElementById("message");
+
+          updateButton.disabled = true;
+
+          updateButton.innerText = "Updating...";
+
+          message.innerText = "";
+
+          message.className = "";
+
+          fetch(
+            "https://peoject-spring-1.onrender.com/update/" +
+              encodeURIComponent(email),
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type": "application/json",
+              },
+
+              body: JSON.stringify(employee),
+            },
+          )
+            .then(function (response) {
+              console.log("UPDATE status:", response.status);
+
+              if (!response.ok) {
+                throw new Error("Server returned " + response.status);
+              }
+
+              return response.text();
+            })
+
+            .then(function (data) {
+              console.log("Update response:", data);
+
+              message.innerText = data || "Employee updated successfully";
+
+              message.className = "success";
+
+              // Keep email in localStorage
+              localStorage.setItem("email", employee.email);
+            })
+
+            .catch(function (error) {
+              console.error("Update error:", error);
+
+              message.innerText = "Unable to update employee.";
+
+              message.className = "error";
+            })
+
+            .finally(function () {
+              updateButton.disabled = false;
+
+              updateButton.innerText = "Update Employee";
+            });
+        });
+    </script>
+  </body>
+</html>
+```

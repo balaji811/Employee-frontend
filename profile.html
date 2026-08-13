@@ -1,0 +1,189 @@
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Employee Profile</title>
+
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+      }
+
+      body {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #f2f4f7;
+      }
+
+      .profile-container {
+        width: 400px;
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      h1 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: #333;
+      }
+
+      .profile-item {
+        margin-bottom: 18px;
+        padding: 12px;
+        background: #f7f7f7;
+        border-radius: 6px;
+      }
+
+      .label {
+        font-size: 14px;
+        color: #777;
+        margin-bottom: 5px;
+      }
+
+      .value {
+        font-size: 17px;
+        font-weight: bold;
+        color: #333;
+        word-break: break-word;
+      }
+
+      .buttons {
+        margin-top: 25px;
+        display: flex;
+        gap: 10px;
+      }
+
+      .buttons a {
+        flex: 1;
+        text-align: center;
+        text-decoration: none;
+        padding: 11px;
+        border-radius: 6px;
+        background: #007bff;
+        color: white;
+      }
+
+      .buttons a:hover {
+        background: #0056b3;
+      }
+
+      .buttons .logout {
+        background: #dc3545;
+      }
+
+      .buttons .logout:hover {
+        background: #b02a37;
+      }
+
+      #message {
+        text-align: center;
+        margin-top: 15px;
+        color: red;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="profile-container">
+      <h1>Employee Profile</h1>
+
+      <div class="profile-item">
+        <div class="label">Name</div>
+        <div class="value" id="name">Loading...</div>
+      </div>
+
+      <div class="profile-item">
+        <div class="label">Email</div>
+        <div class="value" id="email">Loading...</div>
+      </div>
+
+      <div class="profile-item">
+        <div class="label">Department</div>
+        <div class="value" id="dept">Loading...</div>
+      </div>
+
+      <div class="profile-item">
+        <div class="label">Salary</div>
+        <div class="value" id="salary">Loading...</div>
+      </div>
+
+      <div id="message"></div>
+
+      <div class="buttons">
+        <a href="update.html"> Update </a>
+
+        <a href="#" class="logout" onclick="logout()"> Logout </a>
+      </div>
+    </div>
+
+    <script>
+      // Get email saved during login
+      const email = localStorage.getItem("email");
+
+      console.log("Email:", email);
+
+      // If email is not available,
+      // send the user back to login page
+      if (!email) {
+        console.log("Email not found in localStorage");
+
+        window.location.href = "login.html";
+      } else {
+        // Call deployed Spring Boot backend
+        fetch(
+          "https://peoject-spring-1.onrender.com/profile/" +
+            encodeURIComponent(email),
+        )
+          .then(function (response) {
+            console.log("Status:", response.status);
+
+            if (!response.ok) {
+              throw new Error("Server returned " + response.status);
+            }
+
+            return response.json();
+          })
+
+          .then(function (employee) {
+            console.log("Employee:", employee);
+
+            // Display employee information
+
+            document.getElementById("name").innerText = employee.name;
+
+            document.getElementById("email").innerText = employee.email;
+
+            document.getElementById("dept").innerText = employee.dept;
+
+            document.getElementById("salary").innerText = employee.salary;
+          })
+
+          .catch(function (error) {
+            console.error("Error:", error);
+
+            document.getElementById("message").innerText =
+              "Unable to load employee profile.";
+          });
+      }
+
+      // Logout function
+      function logout() {
+        localStorage.removeItem("email");
+
+        window.location.href = "login.html";
+      }
+    </script>
+  </body>
+</html>
+```
